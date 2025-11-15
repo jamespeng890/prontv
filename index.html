@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的视频网站</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">我的网站</div>
+        <nav>
+            <a href="#">首页</a>
+            <a href="#">电影</a>
+            <a href="#">剧集</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>欢迎观看</h1>
+            <p>R2 + Pages 驱动的视频库</p>
+        </section>
+
+        <section class="video-gallery">
+            <h2>热门精选</h2>
+            <div class="video-grid" id="video-grid">
+                </div>
+        </section>
+    </main>
+
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <video id="modal-video-player" width="100%" controls controlsList="nodownload"></video>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
