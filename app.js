@@ -1,8 +1,7 @@
-// 你的 R2 公共 URL (在步骤一中记下的)
-// 这个 URL 看起来是正确的格式，希望你已经启用了 R2 公共访问。
+// 你的 R2 公共 URL
 const R2_PUBLIC_URL = "https://pub-8b0a5f5c1a59458b80274b5baa0fb3ad.r2.dev"; 
 
-// 视频数据列表
+// 【数据占位符】请将此处替换为你原始的 videoDatabase 数组，并确保每个对象间有逗号
 const videoDatabase = [
     {
         title: "好片 1", // 建议为每个视频起不同的名字
@@ -34,63 +33,86 @@ const videoDatabase = [
         poster: "下载.jpg",
         videoFile: "顶级福利姬 奈汐酱 付费写真流出 紧缚黑衣特写粉嫩乳晕 曲线毕露蜜穴隐现 SM绳艺反差至极 51吃瓜网.mp4"
     }
-    // ... 如果你还有其他视频，请在这里添加并记得加逗号
+    // 将你的数据粘贴回这里...
 ];
-
-
-// --- 下面的代码不用动 ---
 
 document.addEventListener("DOMContentLoaded", () => {
     const videoGrid = document.getElementById("video-grid");
     const modal = document.getElementById("video-modal");
     const modalPlayer = document.getElementById("modal-video-player");
     const closeBtn = document.querySelector(".close-btn");
+    // const modalTitle = document.getElementById("modal-title-text"); // 如果你想在播放器显示标题
 
-    // 1. 加载视频卡片
+    // 1. 加载视频卡片 (使用 DocumentFragment 优化性能)
     function loadVideoCards() {
-        videoGrid.innerHTML = ""; // 清空网格
+        videoGrid.innerHTML = ""; 
+        const fragment = document.createDocumentFragment();
         
-        videoDatabase.forEach(video => {
+        videoDatabase.forEach((video, index) => {
             const card = document.createElement("div");
             card.className = "video-card";
+            // 添加交错动画延迟
+            card.style.animation = `fadeInUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards`;
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.style.opacity = "0"; // 初始隐藏供动画使用
             
-            // 构建完整的 R2 URL
             const posterUrl = `${R2_PUBLIC_URL}/${video.poster}`;
             const videoUrl = `${R2_PUBLIC_URL}/${video.videoFile}`;
             
             card.innerHTML = `
-                <img src="${posterUrl}" alt="${video.title}" class="poster">
-                <div class="title">${video.title}</div>
+                <div class="poster-wrapper">
+                    <img src="${posterUrl}" alt="${video.title}" class="poster" loading="lazy">
+                </div>
+                <div class="card-info">
+                    <div class="title">${video.title}</div>
+                </div>
             `;
             
-            // 为卡片添加点击事件
             card.addEventListener("click", () => {
                 playVideo(videoUrl);
             });
             
-            videoGrid.appendChild(card);
+            fragment.appendChild(card);
         });
+        
+        videoGrid.appendChild(fragment);
     }
 
-    // 2. 播放视频
+    // 2. 播放视频 (带淡入动画)
     function playVideo(videoUrl) {
         modalPlayer.src = videoUrl;
-        modal.style.display = "block"; // 显示模态框
+        modal.style.display = "block";
+        // 强制重绘以触发 transition
+        modal.offsetHeight; 
+        modal.classList.add("show");
         modalPlayer.play();
     }
 
-    // 3. 关闭模TA框
+    // 3. 关闭模态框 (带淡出动画)
     function closeModal() {
-        modal.style.display = "none";
+        modal.classList.remove("show");
         modalPlayer.pause();
-        modalPlayer.src = ""; // 停止加载
+        
+        // 等待 CSS transition 结束后再隐藏 DOM
+        setTimeout(() => {
+            modal.style.display = "none";
+            modalPlayer.src = ""; 
+        }, 300); // 对应 CSS 中的 0.3s
     }
 
     // 事件监听
     closeBtn.addEventListener("click", closeModal);
-    window.addEventListener("click", (event) => {
-        // 如果点击了模态框背景，也关闭
-        if (event.target === modal) {
+    
+    // 点击背景关闭，但点击视频本身不关闭
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal || event.target.classList.contains('modal-blur-bg')) {
+            closeModal();
+        }
+    });
+
+    // ESC 键关闭
+    document.addEventListener('keydown', function(event) {
+        if (event.key === "Escape" && modal.classList.contains("show")) {
             closeModal();
         }
     });
@@ -98,4 +120,3 @@ document.addEventListener("DOMContentLoaded", () => {
     // 初始化
     loadVideoCards();
 });
-// <-- 最后的这个 } 是正确的，无需变动
